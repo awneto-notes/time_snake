@@ -2,6 +2,7 @@
 
 This is a simple implementation of the classic "Snake" game with an additional _twist_.
 The game features a snake that moves on a square grid. However, instead of eating to grow larger, it will eat to reduce its length, which increases as time passes.
+
 This script was written with significant contributions from GPT 3.5.
 
 Below are the main components and functionalities of the code:
