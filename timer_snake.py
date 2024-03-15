@@ -21,12 +21,9 @@ pygame.display.set_caption("Snake timer")
 # Initial cell positions
 cell_positions = [(100, 80), (90, 80), (80, 80), (70, 80), (60, 80), (50, 80), (40, 80), (30, 80), (20, 80), (10, 80)]
 
-
+# Clock and timer
 clock = pygame.time.Clock()
 move_timer = pygame.time.get_ticks()
-
-
-    
 
 
 def increase_snake_size(cell_positions):
@@ -35,7 +32,21 @@ def increase_snake_size(cell_positions):
     cell_positions.append(new_tail)
     return(cell_positions)
     
+def decrease_snake_size(cell_positions):
+    tail_x, tail_y = cell_positions[-1]
+    cell_positions.pop()
+    return(cell_positions)
+    
+
+def reset_snake_positions(cell_positions):
+    cell_positions = [(100, 80), (90, 80), (80, 80), (70, 80), (60, 80), (50, 80), (40, 80), (30, 80), (20, 80), (10, 80)]
+    return(cell_positions)
+    
+    
 def get_snake_orientation(cell_positions):
+    if len(cell_positions) <= 1:
+        return("ERROR")
+        
     if (cell_positions[0][0] == cell_positions[1][0]):  # if the head of the snake is parallel to the horizontal axis
         if (cell_positions[0][1] >= cell_positions[1][1]): # if the snake is moving down
             return("DOWN")
@@ -48,7 +59,8 @@ def get_snake_orientation(cell_positions):
             return("LEFT")
     else:
         return("ERROR")
-            
+
+       
 def move_snake_head(cell_positions, direction):
     if direction == "UP":
         cell_positions[0] = (cell_positions[0][0], cell_positions[0][1] - GRID_SIZE)
@@ -102,6 +114,7 @@ def move_snake(keys, cell_positions):
     cell_positions = move_snake_body(cell_positions, old_positions)
     return(cell_positions)
 
+
 # Main loop
 while True:
     screen.fill(BACKGROUND_COLOR)
@@ -116,21 +129,24 @@ while True:
     for i, (cell_x, cell_y) in enumerate(cell_positions):
         pygame.draw.rect(screen, CELL_COLOR, (cell_x, cell_y, GRID_SIZE, GRID_SIZE))
 
-
     # Event handling
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
 
+
+    # Check if 2 seconds have elapsed to delete a new cell
+    if pygame.time.get_ticks() - move_timer > 2000:  # 2 seconds
+        move_timer = pygame.time.get_ticks()
+        if len(cell_positions) > 1:
+            cell_positions = decrease_snake_size(cell_positions)
+        else:
+            cell_positions = reset_snake_positions(cell_positions)
+
     keys = pygame.key.get_pressed()
     cell_positions = move_snake(keys, cell_positions)
     
-    # Check if 2 seconds have elapsed to add a new cell
-    if pygame.time.get_ticks() - move_timer > 2000:  # 2 seconds
-        move_timer = pygame.time.get_ticks()
-        cell_positions = increase_snake_size(cell_positions)
-
     pygame.time.delay(1)
     pygame.display.flip()
     clock.tick(10)  # Limit to 60 frames per second
@@ -139,29 +155,3 @@ while True:
     
     
     
-'''
-def move_snake_keys(keys, cell_positions):
-    key_pressed = False
-    old_positions = copy.deepcopy(cell_positions)
-    if keys[K_UP] and not (keys[K_LEFT] or keys[K_RIGHT]):  # UP
-        cell_positions[0] = (cell_positions[0][0], cell_positions[0][1] - GRID_SIZE)
-        key_pressed = True
-    if keys[K_DOWN] and not (keys[K_LEFT] or keys[K_RIGHT]):    #DOWN
-        cell_positions[0] = (cell_positions[0][0], cell_positions[0][1] + GRID_SIZE)
-        key_pressed = True
-    if keys[K_LEFT] and not (keys[K_UP] or keys[K_DOWN]):   # LEFT
-        cell_positions[0] = (cell_positions[0][0] - GRID_SIZE, cell_positions[0][1])
-        key_pressed = True
-    if keys[K_RIGHT] and not (keys[K_UP] or keys[K_DOWN]):  # RIGHT
-        cell_positions[0] = (cell_positions[0][0] + GRID_SIZE, cell_positions[0][1])
-        key_pressed = True
-        
-        
-        
-    # Update positions of subsequent cells
-    if key_pressed:
-        for i in range(1,len(cell_positions)):
-            cell_positions[i] = (old_positions[i - 1][0], old_positions[i - 1][1])    
-     
-    return(cell_positions)
-'''
